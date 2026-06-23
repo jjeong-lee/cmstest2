@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: cms-backend
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/cms}
+    username: ${DB_USERNAME:cms}
+    password: ${DB_PASSWORD:cms}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+  flyway:
+    enabled: true
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+server:
+  port: 8080
