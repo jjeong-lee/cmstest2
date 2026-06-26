@@ -3,6 +3,7 @@ import { AdminLayout } from '../components/layout/AdminLayout';
 import { PortalLayout } from '../components/layout/PortalLayout';
 import { AdminDashboardPage } from '../pages/admin/AdminDashboardPage';
 import { AdminDocumentsPage } from '../pages/admin/AdminDocumentsPage';
+import { AdminUsersPage } from '../pages/admin/AdminUsersPage';
 import { PortalHomePage } from '../pages/public/PortalHomePage';
 import { PortalDocumentPage } from '../pages/public/PortalDocumentPage';
 
@@ -21,6 +22,7 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <AdminDashboardPage /> },
       { path: 'documents', element: <AdminDocumentsPage /> },
+      { path: 'users', element: <AdminUsersPage /> },
     ],
   },
   {

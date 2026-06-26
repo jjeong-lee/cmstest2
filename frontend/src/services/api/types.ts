@@ -38,6 +38,25 @@ export type SearchResult = {
   updatedAt: string;
 };
 
+export type UserRole = 'ADMIN' | 'EDITOR' | 'VIEWER';
+
+export type TeamSummary = {
+  id: number;
+  name: string;
+  memberCount: number;
+};
+
+export type AdminUser = {
+  id: number;
+  name: string;
+  email: string;
+  role: UserRole;
+  teamId: number | null;
+  teamName: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type ApiError = {
   code: string;
   message: string;
