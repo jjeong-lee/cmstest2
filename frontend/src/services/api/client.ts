@@ -1,6 +1,13 @@
-import type { ApiError, DocumentDetail, DocumentSummary, FolderNode, SearchResult } from './types';
+import type { AdminUser, ApiError, DocumentDetail, DocumentSummary, FolderNode, SearchResult, TeamSummary, UserRole } from './types';
 
 const jsonHeaders = { 'Content-Type': 'application/json' };
+
+type UpsertUserPayload = {
+  role: UserRole;
+  name: string;
+  email: string;
+  teamId: number | null;
+};
 
 async function request<T>(url: string, init?: RequestInit): Promise<T> {
   const response = await fetch(url, init);
@@ -49,6 +56,28 @@ export const api = {
       body: JSON.stringify({ status }),
     }),
   deleteDocument: (id: number) => request<void>(`/api/admin/documents/${id}`, { method: 'DELETE' }),
+  getUsers: (teamId?: number | null) => request<AdminUser[]>(teamId ? `/api/admin/users?teamId=${teamId}` : '/api/admin/users'),
+  createUser: (payload: UpsertUserPayload) =>
+    request<AdminUser>('/api/admin/users', {
+      method: 'POST',
+      headers: jsonHeaders,
+      body: JSON.stringify(payload),
+    }),
+  updateUser: (id: number, payload: UpsertUserPayload) =>
+    request<AdminUser>(`/api/admin/users/${id}`, {
+      method: 'PUT',
+      headers: jsonHeaders,
+      body: JSON.stringify(payload),
+    }),
+  deleteUser: (id: number) => request<void>(`/api/admin/users/${id}`, { method: 'DELETE' }),
+  getTeams: () => request<TeamSummary[]>('/api/admin/teams'),
+  createTeam: (payload: { name: string }) =>
+    request<TeamSummary>('/api/admin/teams', {
+      method: 'POST',
+      headers: jsonHeaders,
+      body: JSON.stringify(payload),
+    }),
+  deleteTeam: (id: number) => request<void>(`/api/admin/teams/${id}`, { method: 'DELETE' }),
   searchDocuments: (query: string) => request<SearchResult[]>(`/api/public/search?q=${encodeURIComponent(query)}`),
   health: () => request<{ status: string; service: string; database: string }>('/api/health'),
 };
