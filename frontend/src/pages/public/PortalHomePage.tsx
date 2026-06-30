@@ -16,6 +16,7 @@ export function PortalHomePage() {
   const [results, setResults] = useState<SearchResult[]>([]);
   const [selectedFolderId, setSelectedFolderId] = useState<number | null>(null);
   const [query, setQuery] = useState('');
+  const [hasSearched, setHasSearched] = useState(false);
   const [error, setError] = useState('');
   const [isLoadingFolders, setIsLoadingFolders] = useState(true);
   const [isLoadingDocuments, setIsLoadingDocuments] = useState(true);
@@ -40,10 +41,17 @@ export function PortalHomePage() {
   }, [selectedFolderId]);
 
   async function handleSearch() {
+    const trimmedQuery = query.trim();
+
+    if (trimmedQuery.length === 0) {
+      return;
+    }
+
     try {
       setError('');
+      setHasSearched(true);
       setIsSearching(true);
-      const data = await api.searchDocuments(query);
+      const data = await api.searchDocuments(trimmedQuery);
       setResults(data);
     } catch (err) {
       setError((err as Error).message);
@@ -52,7 +60,8 @@ export function PortalHomePage() {
     }
   }
 
-  const showSearchResults = query.trim().length > 0;
+  const hasQuery = query.trim().length > 0;
+  const showSearchResults = hasSearched;
 
   return (
     <section className="space-y-6">
@@ -80,18 +89,21 @@ export function PortalHomePage() {
             </div>
             <div className="flex flex-col gap-3 sm:flex-row">
               <Input
-                onChange={(event) => setQuery(event.target.value)}
+                onChange={(event) => {
+                  setQuery(event.target.value);
+                  setHasSearched(false);
+                }}
                 onKeyDown={(event) => {
-                  if (event.key === 'Enter') {
+                  if (event.key === 'Enter' && hasQuery) {
                     void handleSearch();
                   }
                 }}
                 placeholder="제목 또는 본문 키워드를 입력하세요"
                 value={query}
               />
-              <Button className="sm:min-w-28" onClick={handleSearch}>
+              <Button className="sm:min-w-28" disabled={!hasQuery || isSearching} onClick={handleSearch}>
                 <Search className="size-4" />
-                {isSearching ? 'Searching...' : 'Search'}
+                {isSearching ? '검색 중...' : '검색'}
               </Button>
             </div>
           </div>
