@@ -16,10 +16,12 @@ export function PortalHomePage() {
   const [results, setResults] = useState<SearchResult[]>([]);
   const [selectedFolderId, setSelectedFolderId] = useState<number | null>(null);
   const [query, setQuery] = useState('');
+  const [hasSearched, setHasSearched] = useState(false);
   const [error, setError] = useState('');
   const [isLoadingFolders, setIsLoadingFolders] = useState(true);
   const [isLoadingDocuments, setIsLoadingDocuments] = useState(true);
   const [isSearching, setIsSearching] = useState(false);
+  const trimmedQuery = query.trim();
 
   useEffect(() => {
     setIsLoadingFolders(true);
@@ -40,11 +42,18 @@ export function PortalHomePage() {
   }, [selectedFolderId]);
 
   async function handleSearch() {
+    if (trimmedQuery.length === 0) {
+      setHasSearched(false);
+      setResults([]);
+      return;
+    }
+
     try {
       setError('');
       setIsSearching(true);
-      const data = await api.searchDocuments(query);
+      const data = await api.searchDocuments(trimmedQuery);
       setResults(data);
+      setHasSearched(true);
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -52,7 +61,7 @@ export function PortalHomePage() {
     }
   }
 
-  const showSearchResults = query.trim().length > 0;
+  const showSearchResults = hasSearched && trimmedQuery.length > 0;
 
   return (
     <section className="space-y-6">
@@ -80,16 +89,21 @@ export function PortalHomePage() {
             </div>
             <div className="flex flex-col gap-3 sm:flex-row">
               <Input
-                onChange={(event) => setQuery(event.target.value)}
+                onChange={(event) => {
+                  const nextQuery = event.target.value;
+                  setQuery(nextQuery);
+                  setHasSearched(false);
+                  setResults([]);
+                }}
                 onKeyDown={(event) => {
-                  if (event.key === 'Enter') {
+                  if (event.key === 'Enter' && trimmedQuery.length > 0) {
                     void handleSearch();
                   }
                 }}
                 placeholder="제목 또는 본문 키워드를 입력하세요"
                 value={query}
               />
-              <Button className="sm:min-w-28" onClick={handleSearch}>
+              <Button className="sm:min-w-28" disabled={trimmedQuery.length === 0 || isSearching} onClick={handleSearch}>
                 <Search className="size-4" />
                 {isSearching ? 'Searching...' : 'Search'}
               </Button>
