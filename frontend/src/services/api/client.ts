@@ -1,4 +1,4 @@
-import type { AdminUser, ApiError, DocumentDetail, DocumentSummary, FolderNode, SearchResult, TeamSummary, UserRole } from './types';
+import type { AccessLogEntry, AdminUser, ApiError, DocumentDetail, DocumentSummary, FolderNode, SearchResult, TeamSummary, UserRole } from './types';
 
 const jsonHeaders = { 'Content-Type': 'application/json' };
 
@@ -7,6 +7,10 @@ type UpsertUserPayload = {
   name: string;
   email: string;
   teamId: number | null;
+};
+
+type CreateAccessLogPayload = {
+  userId: number;
 };
 
 async function request<T>(url: string, init?: RequestInit): Promise<T> {
@@ -78,6 +82,13 @@ export const api = {
       body: JSON.stringify(payload),
     }),
   deleteTeam: (id: number) => request<void>(`/api/admin/teams/${id}`, { method: 'DELETE' }),
+  getAccessLogs: () => request<AccessLogEntry[]>('/api/admin/access-logs'),
+  createAccessLog: (payload: CreateAccessLogPayload) =>
+    request<AccessLogEntry>('/api/admin/access-logs/entries', {
+      method: 'POST',
+      headers: jsonHeaders,
+      body: JSON.stringify(payload),
+    }),
   searchDocuments: (query: string) => request<SearchResult[]>(`/api/public/search?q=${encodeURIComponent(query)}`),
   health: () => request<{ status: string; service: string; database: string }>('/api/health'),
 };

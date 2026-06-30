@@ -1,6 +1,7 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { AdminLayout } from '../components/layout/AdminLayout';
 import { PortalLayout } from '../components/layout/PortalLayout';
+import { AdminAccessLogsPage } from '../pages/admin/AdminAccessLogsPage';
 import { AdminDashboardPage } from '../pages/admin/AdminDashboardPage';
 import { AdminDocumentsPage } from '../pages/admin/AdminDocumentsPage';
 import { AdminUsersPage } from '../pages/admin/AdminUsersPage';
@@ -23,6 +24,7 @@ export const router = createBrowserRouter([
       { index: true, element: <AdminDashboardPage /> },
       { path: 'documents', element: <AdminDocumentsPage /> },
       { path: 'users', element: <AdminUsersPage /> },
+      { path: 'access-logs', element: <AdminAccessLogsPage /> },
     ],
   },
   {

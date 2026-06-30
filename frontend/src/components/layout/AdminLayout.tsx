@@ -1,4 +1,5 @@
 import {
+  Clock3,
   FileText,
   Globe,
   LayoutDashboard,
@@ -15,6 +16,7 @@ const links = [
   { to: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
   { to: '/admin/documents', label: 'Content', icon: FileText },
   { to: '/admin/users', label: 'User', icon: ShieldCheck },
+  { to: '/admin/access-logs', label: 'Access Log', icon: Clock3 },
   { to: '/', label: 'Portal', icon: Globe },
 ];
 
@@ -33,6 +35,11 @@ const headerByPath = {
     eyebrow: 'Access Console',
     title: '사용자 관리 Workspace',
     badge: 'User / Team 관리',
+  },
+  '/admin/access-logs': {
+    eyebrow: 'Trace Console',
+    title: '접속 로그 Ledger',
+    badge: 'Access 기록 조회',
   },
 } as const;
 

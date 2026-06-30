@@ -36,6 +36,17 @@ public class UserAdminController {
         userAdminService.deleteUser(id);
     }
 
+    @GetMapping("/access-logs")
+    public List<AccessLogDto> getAccessLogs() {
+        return userAdminService.getAccessLogs();
+    }
+
+    @PostMapping("/access-logs/entries")
+    @ResponseStatus(HttpStatus.CREATED)
+    public AccessLogDto createAccessLog(@Valid @RequestBody CreateAccessLogRequest request) {
+        return userAdminService.createAccessLog(request);
+    }
+
     @GetMapping("/teams")
     public List<TeamDto> getTeams() {
         return userAdminService.getTeams();

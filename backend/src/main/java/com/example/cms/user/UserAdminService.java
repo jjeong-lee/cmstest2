@@ -11,10 +11,12 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserAdminService {
     private final UserRepository userRepository;
     private final TeamRepository teamRepository;
+    private final AccessLogRepository accessLogRepository;
 
-    public UserAdminService(UserRepository userRepository, TeamRepository teamRepository) {
+    public UserAdminService(UserRepository userRepository, TeamRepository teamRepository, AccessLogRepository accessLogRepository) {
         this.userRepository = userRepository;
         this.teamRepository = teamRepository;
+        this.accessLogRepository = accessLogRepository;
     }
 
     @Transactional(readOnly = true)
@@ -29,6 +31,13 @@ public class UserAdminService {
     public List<TeamDto> getTeams() {
         return teamRepository.findAllByOrderByNameAsc().stream()
                 .map(team -> new TeamDto(team.getId(), team.getName(), userRepository.countByTeamId(team.getId())))
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<AccessLogDto> getAccessLogs() {
+        return accessLogRepository.findAllByOrderByAccessedAtDescIdDesc().stream()
+                .map(this::toAccessLogDto)
                 .toList();
     }
 
@@ -48,7 +57,20 @@ public class UserAdminService {
     public void deleteUser(Long id) {
         UserEntity entity = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("사용자를 찾을 수 없습니다."));
+        if (accessLogRepository.countByUserId(id) > 0) {
+            throw new ConflictException("접속 로그가 있는 사용자는 삭제할 수 없습니다.");
+        }
         userRepository.delete(entity);
+    }
+
+    public AccessLogDto createAccessLog(CreateAccessLogRequest request) {
+        UserEntity user = userRepository.findById(request.userId())
+                .orElseThrow(() -> new NotFoundException("사용자를 찾을 수 없습니다."));
+
+        AccessLogEntity entity = new AccessLogEntity();
+        entity.setUser(user);
+        entity.setRole(user.getRole());
+        return toAccessLogDto(accessLogRepository.save(entity));
     }
 
     public TeamDto createTeam(CreateTeamRequest request) {
@@ -94,5 +116,15 @@ public class UserAdminService {
                 team == null ? null : team.getName(),
                 entity.getCreatedAt(),
                 entity.getUpdatedAt());
+    }
+
+    private AccessLogDto toAccessLogDto(AccessLogEntity entity) {
+        UserEntity user = entity.getUser();
+        return new AccessLogDto(
+                entity.getId(),
+                user.getId(),
+                user.getName(),
+                entity.getRole().name(),
+                entity.getAccessedAt());
     }
 }

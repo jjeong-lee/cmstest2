@@ -57,6 +57,14 @@ export type AdminUser = {
   updatedAt: string;
 };
 
+export type AccessLogEntry = {
+  id: number;
+  userId: number;
+  userName: string;
+  role: UserRole;
+  accessedAt: string;
+};
+
 export type ApiError = {
   code: string;
   message: string;
